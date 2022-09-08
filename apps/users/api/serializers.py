@@ -14,6 +14,10 @@ class UserSerializer(serializers.ModelSerializer):
     def validate(self, data):
         return data            
 
+    def create(self, validated_data):
+        return User.objects.create(**validated_data)
+
+
 class TestUserSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100)
     email = serializers.EmailField()
@@ -25,3 +29,6 @@ class TestUserSerializer(serializers.Serializer):
 
     def validate(self, data):
         return data
+
+    def create(self, validated_data):
+        return User.objects.create(**validated_data)
