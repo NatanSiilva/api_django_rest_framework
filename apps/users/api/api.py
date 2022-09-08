@@ -14,7 +14,9 @@ def user_api_view(request):
         users = User.objects.all()
         user_serializer = UserSerializer(users, many=True)
 
-        return Response({"data": user_serializer.data, "message": "Users retrieved successfully"}, status=status.HTTP_200_OK)
+        return Response(
+            {"data": user_serializer.data, "message": "Users retrieved successfully"}, status=status.HTTP_200_OK
+        )
 
     elif request.method == "POST":
 
@@ -45,7 +47,9 @@ def user_detail_api_view(request, pk=None):
             user_serializer = UserSerializer(user, data=request.data)
             if user_serializer.is_valid():
                 user_serializer.save()
-                return Response({"data": user_serializer.data, "message": "User updated successfully"}, status=status.HTTP_200_OK)
+                return Response(
+                    {"data": user_serializer.data, "message": "User updated successfully"}, status=status.HTTP_200_OK
+                )
 
             return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
