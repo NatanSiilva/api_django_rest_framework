@@ -1,3 +1,4 @@
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
@@ -13,44 +14,46 @@ def user_api_view(request):
         users = User.objects.all()
         user_serializer = UserSerializer(users, many=True)
 
-        return Response({"data": user_serializer.data})
+        return Response({"data": user_serializer.data, "message": "Users retrieved successfully"}, status=status.HTTP_200_OK)
 
     elif request.method == "POST":
 
         user_serializer = UserSerializer(data=request.data)
         if user_serializer.is_valid():
             user_serializer.save()
-            return Response({"data": user_serializer.data})
+            return Response(
+                {"data": user_serializer.data, "message": "User created successfully"}, status=status.HTTP_201_CREATED
+            )
 
-        return Response(user_serializer.errors)
+        return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET", "PUT", "DELETE"])
 def user_detail_api_view(request, pk=None):
-    if request.method == "GET":
+    user = User.objects.filter(id=pk).first()
 
-        if pk is not None:
-            user = User.objects.filter(id=pk).first()
-            user_serializer = UserSerializer(user)
-            return Response({"data": user_serializer.data})
-        return Response({"data": "Not found"})
+    if user:
+        if request.method == "GET":
+            if pk is not None:
+                user_serializer = UserSerializer(user)
+                return Response(
+                    {"data": user_serializer.data, "message": "User retrieved successfully"}, status=status.HTTP_200_OK
+                )
+            return Response({"data": "Not found"})
 
-    elif request.method == "PUT":
+        elif request.method == "PUT":
+            user_serializer = UserSerializer(user, data=request.data)
+            if user_serializer.is_valid():
+                user_serializer.save()
+                return Response({"data": user_serializer.data, "message": "User updated successfully"}, status=status.HTTP_200_OK)
 
-        user = User.objects.filter(id=pk).first()
-        user_serializer = UserSerializer(user, data=request.data)
-        if user_serializer.is_valid():
-            user_serializer.save()
-            return Response({"data": user_serializer.data})
+            return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(user_serializer.errors)
+        elif request.method == "DELETE":
+            user.delete()
+            return Response({"data": "User deleted"}, status=status.HTTP_200_OK)
 
-    elif request.method == "DELETE":
-        user = User.objects.filter(id=pk).first()
-        user.delete()
-        return Response({"data": "User deleted"})
-
-    return  Response({"data": "Not found"})
+    return Response({"data": "Not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class UserAPIView(APIView):
