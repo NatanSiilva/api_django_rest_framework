@@ -61,3 +61,5 @@ class OfferIndicator(BaseModel):
 
     def __str__(self):
         return f'Category offer {self.category_product}: {self.discount_value}%'
+
+
