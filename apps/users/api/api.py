@@ -11,7 +11,7 @@ from apps.users.api.serializers import UserSerializer
 def user_api_view(request):
     if request.method == "GET":
 
-        users = User.objects.all()
+        users = User.objects.all().values('id', 'username', 'email', 'name')
         user_serializer = UserSerializer(users, many=True)
 
         return Response(
