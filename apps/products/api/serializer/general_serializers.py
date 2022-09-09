@@ -6,10 +6,15 @@ from apps.products.models import *
 class MeasureUnitSerializer(serializers.ModelSerializer):
     class Meta:
         model = MeasureUnit
-        exclude = ('status',)
+        exclude = ("status",)
 
 
 class CategoryProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoryProduct
-        exclude = ('status',)
+        exclude = ("status",)
+
+class OfferIndicatorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OfferIndicator
+        exclude = ("status",)
