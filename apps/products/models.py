@@ -50,7 +50,7 @@ class OfferIndicator(BaseModel):
 
     discount_value = models.PositiveSmallIntegerField(default=0)
     category_product = models.ForeignKey(
-        CategoryProduct, verbose_name="Category of product", on_delete=models.CASCADE, null=False
+        CategoryProduct, verbose_name="Category of product", on_delete=models.CASCADE, null=False, related_name="offers"
     )
     historical = HistoricalRecords()
 
@@ -66,9 +66,11 @@ class Product(BaseModel):
     name = models.CharField("Name of product", max_length=150, blank=False, null=False, unique=True)
     description = models.CharField("Description", max_length=100, blank=False, null=False)
     image = models.ImageField("Image of prducts", upload_to="products/", blank=True, null=True)
-    measure_unit = models.ForeignKey(MeasureUnit, verbose_name="Unit of measurement", on_delete=models.CASCADE, null=True)
+    measure_unit = models.ForeignKey(
+        MeasureUnit, verbose_name="Unit of measurement", on_delete=models.CASCADE, null=True, related_name="products"
+    )
     category_product = models.ForeignKey(
-        CategoryProduct, verbose_name="Category product", on_delete=models.CASCADE, null=True
+        CategoryProduct, verbose_name="Category of product", on_delete=models.CASCADE, null=True, related_name="products"
     )
 
     historical = HistoricalRecords()
