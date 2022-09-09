@@ -14,6 +14,7 @@ class CategoryProductSerializer(serializers.ModelSerializer):
         model = CategoryProduct
         exclude = ("status",)
 
+
 class OfferIndicatorSerializer(serializers.ModelSerializer):
     class Meta:
         model = OfferIndicator
