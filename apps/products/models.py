@@ -28,8 +28,6 @@ class MeasureUnit(BaseModel):
 class CategoryProduct(BaseModel):
 
     description = models.CharField("Description", max_length=100, blank=False, null=False, unique=True)
-    measure_unit = models.ForeignKey(MeasureUnit, verbose_name="Unit of measurement", on_delete=models.CASCADE)
-
     historical = HistoricalRecords()
 
     @property
@@ -49,24 +47,29 @@ class CategoryProduct(BaseModel):
 
 
 class OfferIndicator(BaseModel):
-    
+
     discount_value = models.PositiveSmallIntegerField(default=0)
-    category_product = models.ForeignKey(CategoryProduct, verbose_name="Offer indicator", on_delete=models.CASCADE)
+    category_product = models.ForeignKey(
+        CategoryProduct, verbose_name="Category of product", on_delete=models.CASCADE, null=False
+    )
     historical = HistoricalRecords()
-    
-   
+
     class Meta:
         verbose_name = "Offer indicator"
         verbose_name_plural = "Offer indicators"
 
     def __str__(self):
-        return f'Category offer {self.category_product}: {self.discount_value}%'
+        return f"Category offer {self.category_product}: {self.discount_value}%"
 
 
 class Product(BaseModel):
     name = models.CharField("Name of product", max_length=150, blank=False, null=False, unique=True)
     description = models.CharField("Description", max_length=100, blank=False, null=False)
     image = models.ImageField("Image of prducts", upload_to="products/", blank=True, null=True)
+    measure_unit = models.ForeignKey(MeasureUnit, verbose_name="Unit of measurement", on_delete=models.CASCADE, null=True)
+    category_product = models.ForeignKey(
+        CategoryProduct, verbose_name="Category product", on_delete=models.CASCADE, null=True
+    )
 
     historical = HistoricalRecords()
 
