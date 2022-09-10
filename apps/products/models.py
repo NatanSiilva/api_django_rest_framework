@@ -65,7 +65,7 @@ class OfferIndicator(BaseModel):
 class Product(BaseModel):
     name = models.CharField("Name of product", max_length=150, blank=False, null=False, unique=True)
     description = models.CharField("Description", max_length=100, blank=False, null=False)
-    image = models.ImageField("Image of prducts", upload_to="products/", blank=True, null=True)
+    image = models.ImageField("Image of prducts", upload_to="media/products/", blank=True, null=True)
     measure_unit = models.ForeignKey(
         MeasureUnit, verbose_name="Unit of measurement", on_delete=models.CASCADE, null=True, related_name="products"
     )
