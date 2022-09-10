@@ -24,6 +24,12 @@ class ProductCreateAPIView(generics.ListCreateAPIView):
         )
         return queryset
 
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        total = queryset.count()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response({"total": total, "data": serializer.data}, status=status.HTTP_200_OK)
+
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
@@ -32,66 +38,52 @@ class ProductCreateAPIView(generics.ListCreateAPIView):
         return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ProductRetrieveAPIView(generics.RetrieveAPIView):
+class ProductRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ProductSerializer
 
     def get_queryset(self):
         return self.get_serializer().Meta.model.objects.filter(status=True)
+
 
     def get(self, request, *args, **kwargs):
-        serializer = self.serializer_class(
-            self.get_queryset().select_related("measure_unit", "category_product").get(pk=kwargs["pk"])
-        )
-        return Response({"data": serializer.data}, status=status.HTTP_200_OK)
+        queryset = self.get_queryset().filter(pk=kwargs["pk"]).first()
 
+        if queryset:
+            serializer = self.serializer_class(queryset)
+            return Response({"data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
 
-class ProductDestroyAPIView(generics.DestroyAPIView):
-    serializer_class = ProductSerializer
-
-    def get_queryset(self):
-        return self.get_serializer().Meta.model.objects.filter(status=True)
-
-    def delete(self, request, *args, **kwargs):
-        product = self.get_queryset().filter(pk=kwargs["pk"]).first()
-
-        if product:
-            product.status = False
-            product.save()
-            return Response({"data": "Product deleted"}, status=status.HTTP_200_OK)
-        else:
-            return Response({"data": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
-
-
-class ProductUpdateAPIView(generics.UpdateAPIView):
-    serializer_class = ProductSerializer
-
-    def get_queryset(self):
-        return self.get_serializer().Meta.model.objects.filter(status=True)
 
     def patch(self, request, *args, **kwargs):
-        product = self.get_queryset().filter(pk=kwargs["pk"]).first()
+        queryset = self.get_queryset().filter(pk=kwargs["pk"]).first()
 
-        if product:
-            serializer = self.serializer_class(product, data=request.data, partial=True)
-
+        if queryset:
+            serializer = self.serializer_class(queryset, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 return Response({"data": serializer.data}, status=status.HTTP_200_OK)
-            else:
-                return Response({"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({"data": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+
 
     def put(self, request, *args, **kwargs):
-        product = self.get_queryset().filter(pk=kwargs["pk"]).first()
+        queryset = self.get_queryset().filter(pk=kwargs["pk"]).first()
 
-        if product:
-            serializer = self.serializer_class(product, data=request.data)
-
+        if queryset:
+            serializer = self.serializer_class(queryset, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response({"data": serializer.data}, status=status.HTTP_200_OK)
-            else:
-                return Response({"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({"data": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+    def delete(self, request, *args, **kwargs):
+        queryset = self.get_queryset().filter(pk=kwargs["pk"]).first()
+
+        if queryset:
+            queryset.status = False
+            queryset.save()
+            return Response({"data": "Product deleted"}, status=status.HTTP_200_OK)
+        return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+
