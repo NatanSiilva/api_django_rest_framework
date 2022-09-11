@@ -60,9 +60,9 @@ def user_detail_api_view(request, pk=None):
     return Response({"data": "Not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
-class UserAPIView(APIView):
-    def get(self, request):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
+# class UserAPIView(APIView):
+#     def get(self, request):
+#         users = User.objects.all()
+#         serializer = UserSerializer(users, many=True)
 
-        return Response({"data": serializer.data})
+#         return Response({"data": serializer.data})

@@ -37,6 +37,7 @@ THIRD_APPS = [
     "rest_framework",
     "simple_history",
     "debug_toolbar",
+    'drf_yasg',
 ]
 
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS
@@ -122,4 +123,8 @@ INTERNAL_IPS = [
 
 DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+}
+
+SWAGGER_SETTINGS = {
+    'DOC_EXPANSION': 'none',
 }

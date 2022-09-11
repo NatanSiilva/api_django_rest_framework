@@ -10,6 +10,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
+        # fields = "__all__"
         exclude = ("status", 'created_at', 'updated_at', 'deleted_date')
 
 
@@ -22,4 +23,6 @@ class ProductSerializer(serializers.ModelSerializer):
             'image': instance.image.url if instance.image else '',
             'measure_unit': instance.measure_unit.description if instance.measure_unit else '',
             'category_product': instance.category_product.description if instance.category_product else '',
+            'created_at': instance.created_at,
+            'updated_at': instance.updated_at,
         }
