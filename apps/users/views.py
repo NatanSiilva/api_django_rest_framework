@@ -4,6 +4,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
 
 from apps.users.api.serializers import UserTokenSerializer
 
@@ -11,6 +12,7 @@ from django.contrib.sessions.models import Session
 
 
 class Login(ObtainAuthToken):
+
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={"request": request})
 
@@ -56,3 +58,40 @@ class Login(ObtainAuthToken):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"message": "Token already exists"}, status=status.HTTP_200_OK)
+
+
+class Logout(APIView):
+
+    def get(self, request, *args, **kwargs):
+        try:
+            token = request.GET.get("token")
+            token = Token.objects.filter(key=token).first()
+
+            if token:
+                user = token.user
+
+                all_sessions = Session.objects.filter(expire_date__gte=datetime.now())
+
+                if all_sessions.exists():
+                    for session in all_sessions:
+                        session_data = session.get_decoded()
+                        if user.id == int(session_data.get("_auth_user_id")):
+                            session.delete()
+
+                token.delete()
+                
+                session_message = "User logged out successfully"
+                token_message = "Token deleted successfully"
+
+                return Response({
+                    "data": {
+                        "session_message": session_message,
+                        "token_message": token_message,
+                        "url_login": "/login/",
+                    }
+                })
+            else:
+                return Response({"message": "Token not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)

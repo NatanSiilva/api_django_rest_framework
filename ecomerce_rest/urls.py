@@ -7,7 +7,7 @@ from django.urls import path, include, re_path
 
 from rest_framework import permissions
 
-from apps.users.views import Login
+from apps.users.views import *
 
 
 schema_view = get_schema_view(
@@ -29,7 +29,8 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path("admin/", admin.site.urls),
-    path("login", Login.as_view(), name="login"),
+    path("login/", Login.as_view(), name="login"),
+    path("logout/", Logout.as_view(), name="logout"),
     path("api/user/", include("apps.users.api.urls")),
     path("api/", include("apps.products.api.routers")),
 ]
