@@ -11,8 +11,20 @@ from apps.users.api.serializers import UserTokenSerializer
 from django.contrib.sessions.models import Session
 
 
-class Login(ObtainAuthToken):
+class RefreshToken(APIView):
+    def post(self, request):
+        username = request.data["username"]
+        
+        try:
+            user = UserTokenSerializer.Meta.model.objects.filter(username=username).first()
+            user_token = Token.objects.get(user=user)
+            return Response({"token": user_token.key}, status=status.HTTP_200_OK)
+        except:
+            return Response({"error": "Token not found"}, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+class Login(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={"request": request})
 
@@ -61,7 +73,6 @@ class Login(ObtainAuthToken):
 
 
 class Logout(APIView):
-
     def get(self, request, *args, **kwargs):
         try:
             token = request.GET.get("token")
@@ -79,17 +90,19 @@ class Logout(APIView):
                             session.delete()
 
                 token.delete()
-                
+
                 session_message = "User logged out successfully"
                 token_message = "Token deleted successfully"
 
-                return Response({
-                    "data": {
-                        "session_message": session_message,
-                        "token_message": token_message,
-                        "url_login": "/login/",
+                return Response(
+                    {
+                        "data": {
+                            "session_message": session_message,
+                            "token_message": token_message,
+                            "url_login": "/login/",
+                        }
                     }
-                })
+                )
             else:
                 return Response({"message": "Token not found"}, status=status.HTTP_404_NOT_FOUND)
 
