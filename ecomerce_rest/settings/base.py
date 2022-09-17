@@ -34,6 +34,7 @@ LOCAL_APPS = [
 ]
 
 THIRD_APPS = [
+    'corsheaders',
     "rest_framework",
     "rest_framework.authtoken",
     "simple_history",
@@ -46,6 +47,7 @@ INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS
 
 MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -131,4 +133,9 @@ SWAGGER_SETTINGS = {
 }
 
 
-TOKEN_EXPIRED_AFTER_SECONDS = 900 # 15 minutes
+TOKEN_EXPIRED_AFTER_SECONDS = 20  # 15 minutes
+
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:3000",
+]
+

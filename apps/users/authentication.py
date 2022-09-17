@@ -9,7 +9,6 @@ from rest_framework.exceptions import AuthenticationFailed
 
 
 class ExpiringTokenAuthentication(TokenAuthentication):
-    expired = False
     
     def expires_in(self, token):
         time_elapsed = timezone.now() - token.created
@@ -23,7 +22,6 @@ class ExpiringTokenAuthentication(TokenAuthentication):
         is_expire = self.is_token_expired(token)
 
         if is_expire:
-            self.expired = True
             user = token.user
             all_sessions = Session.objects.filter(expire_date__gte=timezone.now())
 
@@ -36,25 +34,16 @@ class ExpiringTokenAuthentication(TokenAuthentication):
             token.delete()
             token = self.get_model().objects.create(user=user)
             
-        return is_expire, token
+        return token
 
     def authenticate_credentials(self, key):
-        user, token, message = None, None, None
-
+        user = None
+        
         try:
             token = self.get_model().objects.select_related("user").get(key=key)
+            token = self.token_expired_handler(token)
             user = token.user
         except self.get_model().DoesNotExist:
-            message = "Invalid token"
-            self.expired = True
+            pass
 
-        if token is not None:
-            if not user.is_active:
-                message = "User inactive or deleted"
-            
-            is_expired = self.token_expired_handler(token)
-
-            if is_expired:
-                message = "The token is expired"
-
-        return (user, token, message, self.expired)
+        return user

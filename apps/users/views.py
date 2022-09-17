@@ -9,19 +9,19 @@ from rest_framework.views import APIView
 from apps.users.api.serializers import UserTokenSerializer
 
 from django.contrib.sessions.models import Session
+from apps.users.authentication_mixins import AuthenticationMixins
 
 
-class RefreshToken(APIView):
-    def post(self, request):
-        username = request.data["username"]
-        
+class RefreshToken(AuthenticationMixins, APIView):
+    def get(self, request):
+        # username = request.data["username"]
         try:
-            user = UserTokenSerializer.Meta.model.objects.filter(username=username).first()
-            user_token = Token.objects.get(user=user)
-            return Response({"token": user_token.key}, status=status.HTTP_200_OK)
+            # user = UserTokenSerializer.Meta.model.objects.filter(username=self.user.username).first()
+            user_token,_ = Token.objects.get_or_create(user=self.user)
+            user = UserTokenSerializer(self.user)
+            return Response({"token": user_token.key, "user": user.data}, status=status.HTTP_200_OK)
         except:
             return Response({"error": "Token not found"}, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class Login(ObtainAuthToken):
