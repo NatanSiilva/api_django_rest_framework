@@ -1,110 +1,51 @@
-from datetime import datetime
-
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.generics import GenericAPIView
 
-from apps.users.api.serializers import UserTokenSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from django.contrib.sessions.models import Session
-from apps.users.authentication_mixins import AuthenticationMixins
+from django.contrib.auth import authenticate
 
-
-class RefreshToken(AuthenticationMixins, APIView):
-    def get(self, request):
-        # username = request.data["username"]
-        try:
-            # user = UserTokenSerializer.Meta.model.objects.filter(username=self.user.username).first()
-            user_token,_ = Token.objects.get_or_create(user=self.user)
-            user = UserTokenSerializer(self.user)
-            return Response({"token": user_token.key, "user": user.data}, status=status.HTTP_200_OK)
-        except:
-            return Response({"error": "Token not found"}, status=status.HTTP_400_BAD_REQUEST)
+from apps.users.api.serializers import CustomUserSerializer, CustomTokenObtainPairSerializer
+from apps.users.models import User
 
 
-class Login(ObtainAuthToken):
+class SignIn(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={"request": request})
+        username = request.data.get("username")
+        password = request.data.get("password")
 
-        if serializer.is_valid():
-            user = serializer.validated_data["user"]
+        user = authenticate(username=username, password=password)
 
-            if user.is_active:
-                token, created = Token.objects.get_or_create(user=user)
-                user_serializer = UserTokenSerializer(user)
+        if user:
+            sing_in_serializer = self.get_serializer(data=request.data)
 
-                if created:
-                    return Response(
-                        {
-                            "data": {
-                                "token": token.key,
-                                "user": user_serializer.data,
-                            },
-                            "message": "User logged in successfully",
-                        },
-                        status=status.HTTP_201_CREATED,
-                    )
-                else:
-                    all_sessions = Session.objects.filter(expire_date__gte=datetime.now())
+            if sing_in_serializer.is_valid():
+                user_serializer = CustomUserSerializer(user)
+                data = {
+                    'data': {
+                        "user": user_serializer.data,
+                        "access-token": sing_in_serializer.validated_data["access"],
+                        "refresh-token": sing_in_serializer.validated_data["refresh"],
+                        "message": "User logged in successfully",
+                    } 
+                }
+                return Response(data, status=status.HTTP_200_OK)
 
-                    if all_sessions.exists():
-                        for session in all_sessions:
-                            session_data = session.get_decoded()
-                            if user.id == int(session_data.get("_auth_user_id")):
-                                session.delete()
+            return Response(sing_in_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-                    token.delete()
-                    token = Token.objects.create(user=user)
-                    return Response(
-                        {
-                            "data": {
-                                "token": token.key,
-                                "user": user_serializer.data,
-                            },
-                            "message": "User logged in successfully",
-                        }
-                    )
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({"message": "Token already exists"}, status=status.HTTP_200_OK)
+        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-class Logout(APIView):
-    def get(self, request, *args, **kwargs):
-        try:
-            token = request.GET.get("token")
-            token = Token.objects.filter(key=token).first()
+class SignOut(GenericAPIView):
+    def post(self, request, *args, **kwargs):
+        user_id = request.data.get("user", 0)
+        user = User.objects.filter(id=user_id)
 
-            if token:
-                user = token.user
-
-                all_sessions = Session.objects.filter(expire_date__gte=datetime.now())
-
-                if all_sessions.exists():
-                    for session in all_sessions:
-                        session_data = session.get_decoded()
-                        if user.id == int(session_data.get("_auth_user_id")):
-                            session.delete()
-
-                token.delete()
-
-                session_message = "User logged out successfully"
-                token_message = "Token deleted successfully"
-
-                return Response(
-                    {
-                        "data": {
-                            "session_message": session_message,
-                            "token_message": token_message,
-                            "url_login": "/login/",
-                        }
-                    }
-                )
-            else:
-                return Response({"message": "Token not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        except Exception as e:
-            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        if user.exists():
+            RefreshToken.for_user(user.first())
+            return Response({"message": "User logged out successfully"}, status=status.HTTP_200_OK)
+        return Response({"error": "User not found"}, status=status.HTTP_401_UNAUTHORIZED)

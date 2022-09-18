@@ -1,10 +1,45 @@
 from rest_framework import serializers
 from apps.users.models import User
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
-class UserTokenSerializer(serializers.ModelSerializer):
+# class UserTokenSerializer(serializers.ModelSerializer):
+#     """
+#     Serializer for the UserToken model
+#     """
+
+#     class Meta:
+#         model = User
+#         fields = (
+#             "id",
+#             "username",
+#             "email",
+#             'last_name',
+#         )
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """
-    Serializer for the UserToken model
+    Custom TokenObtainPairSerializer
+    """
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        refresh = self.get_token(self.user)
+
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+        data['username'] = self.user.username
+        data['email'] = self.user.email
+        data['last_name'] = self.user.last_name
+
+        return data
+
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    """
+    Custom User Serializer
     """
 
     class Meta:
