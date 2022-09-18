@@ -1,11 +1,16 @@
 import debug_toolbar
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-
 from django.contrib import admin
 from django.urls import path, include, re_path
 
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
 from rest_framework import permissions
+
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 from apps.users.views import *
 
@@ -30,8 +35,10 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path("admin/", admin.site.urls),
     path("login/", Login.as_view(), name="login"),
-    path('refresh-token/', RefreshToken.as_view(), name='refresh-token'),
     path("logout/", Logout.as_view(), name="logout"),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # path('refresh-token/', RefreshToken.as_view(), name='refresh-token'),
     path("api/user/", include("apps.users.api.urls")),
     path("api/", include("apps.products.api.routers")),
 ]

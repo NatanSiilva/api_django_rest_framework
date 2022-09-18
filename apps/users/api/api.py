@@ -9,8 +9,8 @@ from apps.users.api.serializers import UserSerializer, UserListSerializer
 from apps.users.authentication_mixins import AuthenticationMixins
 
 
+# @authentication_classes([AuthenticationMixins])
 @api_view(["GET", "POST"])
-@authentication_classes([AuthenticationMixins])
 def user_api_view(request):
     if request.method == "GET":
 
@@ -33,8 +33,8 @@ def user_api_view(request):
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# @authentication_classes([AuthenticationMixins])
 @api_view(["GET", "PUT", "DELETE"])
-@authentication_classes([AuthenticationMixins])
 def user_detail_api_view(request, pk=None):
     user = User.objects.filter(id=pk).first()
 

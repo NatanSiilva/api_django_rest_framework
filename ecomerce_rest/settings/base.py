@@ -37,6 +37,7 @@ THIRD_APPS = [
     'corsheaders',
     "rest_framework",
     "rest_framework.authtoken",
+    'rest_framework_simplejwt',
     "simple_history",
     "debug_toolbar",
     'drf_yasg',
@@ -136,11 +137,15 @@ CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
 ]
 
-TOKEN_EXPIRED_AFTER_SECONDS = 20  # 15 minutes
+# TOKEN_EXPIRED_AFTER_SECONDS = 20  # 15 minutes
 
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'apps.users.authentication_mixins.AuthenticationMixins',
-#     ]
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # 'apps.users.authentication_mixins.AuthenticationMixins',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
