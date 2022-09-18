@@ -1,13 +1,16 @@
 from rest_framework import status
+from rest_framework.decorators import authentication_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 
 from apps.users.models import User
 from apps.users.api.serializers import UserSerializer, UserListSerializer
+from apps.users.authentication_mixins import AuthenticationMixins
 
 
 @api_view(["GET", "POST"])
+@authentication_classes([AuthenticationMixins])
 def user_api_view(request):
     if request.method == "GET":
 
@@ -31,6 +34,7 @@ def user_api_view(request):
 
 
 @api_view(["GET", "PUT", "DELETE"])
+@authentication_classes([AuthenticationMixins])
 def user_detail_api_view(request, pk=None):
     user = User.objects.filter(id=pk).first()
 

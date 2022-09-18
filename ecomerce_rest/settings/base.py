@@ -132,10 +132,15 @@ SWAGGER_SETTINGS = {
     'DOC_EXPANSION': 'none',
 }
 
-
-TOKEN_EXPIRED_AFTER_SECONDS = 20  # 15 minutes
-
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
 ]
 
+TOKEN_EXPIRED_AFTER_SECONDS = 20  # 15 minutes
+
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'apps.users.authentication_mixins.AuthenticationMixins',
+#     ]
+# }
