@@ -42,10 +42,17 @@ class SignIn(TokenObtainPairView):
 
 class SignOut(GenericAPIView):
     def post(self, request, *args, **kwargs):
-        user_id = request.data.get("user", 0)
-        user = User.objects.filter(id=user_id)
+        refresh_token = request.data.get("refresh_token")
+        print(refresh_token)
 
-        if user.exists():
-            RefreshToken.for_user(user.first())
-            return Response({"message": "User logged out successfully"}, status=status.HTTP_200_OK)
-        return Response({"error": "User not found"}, status=status.HTTP_401_UNAUTHORIZED)
+        if refresh_token:
+            try:
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+
+                return Response({"message": "User logged out successfully"}, status=status.HTTP_200_OK)
+
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
