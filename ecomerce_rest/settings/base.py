@@ -32,6 +32,7 @@ LOCAL_APPS = [
     "apps.base",
     'apps.users',
     'apps.products',
+    'apps.expense_manger',
 ]
 
 THIRD_APPS = [
@@ -131,17 +132,17 @@ CORS_ORIGIN_WHITELIST = [
 # TOKEN_EXPIRED_AFTER_SECONDS = 20  # 15 minutes
 
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'apps.users.authentication_mixins.AuthenticationMixins',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ]
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         # 'apps.users.authentication_mixins.AuthenticationMixins',
+#         'rest_framework_simplejwt.authentication.JWTAuthentication',
+#         'rest_framework.authentication.SessionAuthentication',
+#         'rest_framework.authentication.BasicAuthentication',
+#     ],
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.IsAuthenticated',
+#     ]
+# }
 
 
 

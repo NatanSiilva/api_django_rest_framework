@@ -5,17 +5,7 @@ from apps.base.models import BaseModel
 
 
 class MeasureUnit(BaseModel):
-
     description = models.CharField("Description", max_length=100, blank=False, null=False, unique=True)
-    historical = HistoricalRecords()
-
-    @property
-    def _history_user(self):
-        return self.changed_by
-
-    @_history_user.setter
-    def _history_user(self, value):
-        self.changed_by = value
 
     class Meta:
         verbose_name = "unit of measurement"
@@ -26,17 +16,7 @@ class MeasureUnit(BaseModel):
 
 
 class CategoryProduct(BaseModel):
-
     description = models.CharField("Description", max_length=100, blank=False, null=False, unique=True)
-    historical = HistoricalRecords()
-
-    @property
-    def _history_user(self):
-        return self.changed_by
-
-    @_history_user.setter
-    def _history_user(self, value):
-        self.changed_by = value
 
     class Meta:
         verbose_name = "Category of product"
@@ -47,12 +27,10 @@ class CategoryProduct(BaseModel):
 
 
 class OfferIndicator(BaseModel):
-
     discount_value = models.PositiveSmallIntegerField(default=0)
     category_product = models.ForeignKey(
         CategoryProduct, verbose_name="Category of product", on_delete=models.CASCADE, null=False, related_name="offers"
     )
-    historical = HistoricalRecords()
 
     class Meta:
         verbose_name = "Offer indicator"
@@ -72,16 +50,6 @@ class Product(BaseModel):
     category_product = models.ForeignKey(
         CategoryProduct, verbose_name="Category of product", on_delete=models.CASCADE, null=True, related_name="products"
     )
-
-    historical = HistoricalRecords()
-
-    @property
-    def _history_user(self):
-        return self.changed_by
-
-    @_history_user.setter
-    def _history_user(self, value):
-        self.changed_by = value
 
     class Meta:
         verbose_name = "Product"
