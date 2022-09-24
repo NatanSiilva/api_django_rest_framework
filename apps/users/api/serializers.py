@@ -28,11 +28,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         refresh = self.get_token(self.user)
 
-        data['refresh'] = str(refresh)
-        data['access'] = str(refresh.access_token)
-        data['username'] = self.user.username
-        data['email'] = self.user.email
-        data['last_name'] = self.user.last_name
+        data["refresh"] = str(refresh)
+        data["access"] = str(refresh.access_token)
+        data["username"] = self.user.username
+        data["email"] = self.user.email
+        data["last_name"] = self.user.last_name
 
         return data
 
@@ -48,7 +48,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "id",
             "username",
             "email",
-            'last_name',
+            "last_name",
         )
 
 
@@ -85,7 +85,6 @@ class UserListSerializer(serializers.ModelSerializer):
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = (
@@ -94,3 +93,25 @@ class UpdateUserSerializer(serializers.ModelSerializer):
             "name",
             "last_name",
         )
+
+
+class PasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(required=True, write_only=True)
+    password1 = serializers.CharField(required=True, write_only=True)
+
+    def validate_password(self, value):
+        if len(value) < 6:
+            raise serializers.ValidationError("Senha muito curta")
+        return value
+
+    def validate_password1(self, value):
+        if len(value) < 6:
+            raise serializers.ValidationError("Senha muito curta")
+        return value
+
+    def validate(self, data):
+        if data["password"] != data["password1"]:
+            raise serializers.ValidationError({
+                "password": "Senhas não conferem"
+            })
+        return data

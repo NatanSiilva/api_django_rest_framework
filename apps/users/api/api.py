@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import authentication_classes
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 
@@ -28,6 +29,20 @@ class UserViewSet(viewsets.GenericViewSet):
                 .values("id", "username", "email", "name", "password")
             )
         return self.queryset
+
+
+    @action(detail=True, methods=["put"], url_path="change-password")
+    def set_password(self, request, pk=None):
+        user = self.get_object(pk)
+        password_serializer = PasswordSerializer(data=request.data)
+
+        if password_serializer.is_valid():
+            user.set_password(password_serializer.data["password"])
+            user.save()
+            return Response("Password changed successfully", status=status.HTTP_200_OK)
+
+        return Response({"message": "error", "status": password_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
 
     def list(self, request):
         queryset = self.get_queryset()
