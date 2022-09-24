@@ -14,6 +14,27 @@ class ProductSerializer(serializers.ModelSerializer):
         exclude = ("status", 'created_at', 'updated_at', 'deleted_date')
 
 
+    def validate_measure_unit(self, value):
+        # obrigando que os value nao seja vazio
+        if not value:
+            raise serializers.ValidationError("measure_unit is required")
+        return value
+
+    def validate_category_product(self, value):
+        if not value:
+            raise serializers.ValidationError("category_product is required")
+        return value
+
+    def validate(self, data):
+        # obrigando que envie os parametros
+        if not data.get('measure_unit'):
+            raise serializers.ValidationError({"measure_unit": "measure_unit is required"})
+
+        if not data.get('category_product'):
+            raise serializers.ValidationError({"category_product": "category_product is required"})
+
+        return data
+
     def to_representation(self, instance):
             
         return {
