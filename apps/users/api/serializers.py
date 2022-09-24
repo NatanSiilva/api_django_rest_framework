@@ -80,5 +80,17 @@ class UserListSerializer(serializers.ModelSerializer):
             "username": instance["username"],
             "email": instance["email"],
             "name": instance["name"],
-            "password": instance["password"],
+            # "password": instance["password"],
         }
+
+
+class UpdateUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "email",
+            "name",
+            "last_name",
+        )
