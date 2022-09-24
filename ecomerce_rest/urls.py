@@ -1,6 +1,9 @@
 import debug_toolbar
+
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.conf import settings
+from django.views.static import serve
 
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -46,3 +49,10 @@ urlpatterns = [
 urlpatterns = [
     path("__debug__/", include(debug_toolbar.urls)),
 ] + urlpatterns
+
+
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {
+        'document_root': settings.MEDIA_ROOT,
+    }),
+]
