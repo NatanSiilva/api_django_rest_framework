@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.http.request import QueryDict
 
 def validate_files(request, field, update=False):
     request = request.copy()
@@ -22,8 +23,6 @@ def validate_files01(request, field, update=False):
     request._mutable = False
 
     return request
-
-
 
 def format_date(date):
     date = datetime.strptime(date, '%d/%m/%Y')
